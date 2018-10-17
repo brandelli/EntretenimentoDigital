@@ -25,7 +25,7 @@ void PlayState::init()
         exit(1);
     }
     text.setFont(font);
-    text.setString(L"Frogger");
+    text.setString(L"Level 1");
     text.setCharacterSize(24); // in pixels
     text.setFillColor(sf::Color::Yellow);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
@@ -33,7 +33,11 @@ void PlayState::init()
     map = new tmx::MapLoader("data/maps");       // all maps/tiles will be read from data/maps
     // map->AddSearchPath("data/maps/tilesets"); // e.g.: adding more search paths for tilesets
     map->Load("dungeon-tilesets2.tmx");
-
+    starPosition[0] = 50;
+    starPosition[1] = 190;
+    starPosition[2] = 320;
+    starPosition[3] = 450;
+    starPosition[4] = 570;
     walkStates[0] = "walk-right";
     walkStates[1] = "walk-left";
     walkStates[2] = "walk-up";
@@ -43,35 +47,17 @@ void PlayState::init()
     player.setPosition(40,470);
     player.loadAnimation("data/img/warrioranim.xml");
     player.setAnimation(walkStates[currentDir]);
-    player.setAnimRate(15);
+    player.setAnimRate(30);
     //player.setScale(1,1);
     player.play();
 
     enemy.load("data/img/Char14.png");
     enemy.setPosition(40,250);
-    enemy.setXspeed(50);
+    enemy.setXspeed(level*enemySpeed);
     enemy.setScale(2,2);
 
-    star1.load("data/img/Char22.png");
-    star1.setPosition(50,50);
-    star1.setScale(1,1);
+    createObjectives();
 
-    star2.load("data/img/Char22.png");
-    star2.setPosition(190,50);
-    star2.setScale(1,1);
-
-    star3.load("data/img/Char22.png");
-    star3.setPosition(320,50);
-    star3.setScale(1,1);
-
-    star4.load("data/img/Char22.png");
-    star4.setPosition(450,50);
-    star4.setScale(1,1);
-
-    star5.load("data/img/Char22.png");
-    star5.setPosition(570,50);
-    star5.setScale(1,1);
-//    edirx = 1; // right
 
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
@@ -91,6 +77,15 @@ void PlayState::init()
     im->addKeyInput("zoomout", sf::Keyboard::X);
 
     cout << "PlayState: Init" << endl;
+}
+
+void PlayState::createObjectives()
+{
+    for(int i=0;i<5;i++){
+        star[i].load("data/img/Char22.png");
+        star[i].setPosition(starPosition[i],50);
+        star[i].setScale(1,1);
+    }
 }
 
 void PlayState::cleanup()
@@ -180,8 +175,7 @@ void PlayState::update(cgf::Game* game)
     checkCollision(2, game, &player);
     if(checkCollision(2, game, &enemy))
         enemy.setPosition(40,250);
-    //enemy.update(game->getUpdateInterval());
-    //player.update(game->getUpdateInterval());
+
     if(player.bboxCollision(enemy)) {
         enemy.setVisible(false);
         text.setString(L"Perdeu");
@@ -189,42 +183,39 @@ void PlayState::update(cgf::Game* game)
         text.setFillColor(sf::Color::Red);
         text.setCharacterSize(64);
     }
+    reachedObjective();
+    finishedLevel();
 
-    if(bStar1 && player.bboxCollision(star1)) {
-        bStar1 = false;
-        star1.setVisible(false);
-        player.setPosition(40,470);
-    }
-
-    if(bStar2 && player.bboxCollision(star2)) {
-        bStar2 = false;
-        star2.setVisible(false);
-        player.setPosition(40,470);
-    }
-
-    if(bStar3 && player.bboxCollision(star3)) {
-        bStar3 = false;
-        star3.setVisible(false);
-        player.setPosition(40,470);
-    }
-
-    if(bStar4 && player.bboxCollision(star4)) {
-        bStar4 = false;
-        star4.setVisible(false);
-        player.setPosition(40,470);
-    }
-
-    if(bStar5 && player.bboxCollision(star5)) {
-        bStar5 = false;
-        star5.setVisible(false);
-        player.setPosition(40,470);
-    }
-    if(!bStar1 && !bStar2 && !bStar3 && !bStar4 && !bStar5){
-        text.setString(L"Ganhou");
-        text.setPosition(300,200);
-        text.setCharacterSize(64);
-    }
     //centerMapOnPlayer();
+}
+
+void PlayState::reachedObjective()
+{
+    for(int i=0;i<5;i++){
+        if(bStar[i] && player.bboxCollision(star[i])) {
+            bStar[i] = false;
+            star[i].setVisible(false);
+            player.setPosition(40,470);
+        }
+    }
+}
+
+bool PlayState::finishedLevel()
+{
+    bool bFinished = true;
+    for(int i=0;i<5;i++){
+        if(bStar[i]) {
+            return false;
+        }
+    }
+    for(int i=0;i<5;i++){
+        bStar[i] = true;
+        star[i].setVisible(true);
+    }
+    player.setPosition(40,470);
+    level = level + 1;
+    enemy.setPosition(40,250);
+    enemy.setXspeed(level*enemySpeed);
 }
 
 void PlayState::draw(cgf::Game* game)
@@ -234,41 +225,13 @@ void PlayState::draw(cgf::Game* game)
 //    map->Draw(*screen, 1);     // draw only the second layer
     screen->draw(player);
     screen->draw(enemy);
-    screen->draw(star1);
-    screen->draw(star2);
-    screen->draw(star3);
-    screen->draw(star4);
-    screen->draw(star5);
     screen->draw(text);
+    for(int i=0;i<5;i++){
+        screen->draw(star[i]);
+    }
 }
 
-void PlayState::centerMapOnPlayer()
-{
-    sf::View view = screen->getView();
-    sf::Vector2u mapsize = map->GetMapSize();
-    sf::Vector2f viewsize = view.getSize();
-    viewsize.x /= 2;
-    viewsize.y /= 2;
-    sf::Vector2f pos = player.getPosition();
 
-    float panX = viewsize.x; // minimum pan
-    if(pos.x >= viewsize.x)
-        panX = pos.x;
-
-    if(panX >= mapsize.x - viewsize.x)
-        panX = mapsize.x - viewsize.x;
-
-    float panY = viewsize.y; // minimum pan
-    if(pos.y >= viewsize.y)
-        panY = pos.y;
-
-    if(panY >= mapsize.y - viewsize.y)
-        panY = mapsize.y - viewsize.y;
-
-    sf::Vector2f center(panX,panY);
-    view.setCenter(center);
-    screen->setView(view);
-}
 
 bool PlayState::checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj)
 {
@@ -300,10 +263,6 @@ bool PlayState::checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj)
     float vx = offset.x;
     float vy = offset.y;
 
-    //cout << "px,py: " << px << " " << py << endl;
-
-    //cout << "tilesize " << tilesize.x << " " << tilesize.y << endl;
-    //cout << "mapsize " << mapsize.x << " " << mapsize.y << endl;
 
     // Test the horizontal movement first
     i = objsize.y > tilesize.y ? tilesize.y : objsize.y;

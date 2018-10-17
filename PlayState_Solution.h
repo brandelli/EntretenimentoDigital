@@ -29,6 +29,9 @@ class PlayState : public cgf::GameState
     void handleEvents(cgf::Game* game);
     void update(cgf::Game* game);
     void draw(cgf::Game* game);
+    void createObjectives();
+    void reachedObjective();
+    bool finishedLevel();
 
     // Implement Singleton Pattern
     static PlayState* instance()
@@ -52,13 +55,12 @@ class PlayState : public cgf::GameState
 
     cgf::Sprite player;
     cgf::Sprite enemy;
-    cgf::Sprite star1;
-    cgf::Sprite star2;
-    cgf::Sprite star3;
-    cgf::Sprite star4;
-    cgf::Sprite star5;
+    cgf::Sprite star[5];
+    bool bStar[5];
+    int starPosition[5];
 
-    bool bStar1=true, bStar2=true, bStar3=true, bStar4=true, bStar5=true;
+    int level = 1;
+    int enemySpeed = 50;
 
 
     sf::RenderWindow* screen;
@@ -68,9 +70,6 @@ class PlayState : public cgf::GameState
 
     sf::Font font;
     sf::Text text;
-
-    // Centers the camera on the player position
-    void centerMapOnPlayer();
 
     // Checks collision between a sprite and a map layer
     bool checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj);
