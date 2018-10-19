@@ -1,9 +1,6 @@
 /*
- *  PlayState.h
- *  Normal "play" state
- *
- *  Created by Marcelo Cohen on 08/13.
- *  Copyright 2013 PUCRS. All rights reserved.
+ *  PlayState_Solution.h
+ *  Bruno Brandelli, Renata Bueno, Yago Vieira
  *
  */
 

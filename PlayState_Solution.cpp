@@ -1,9 +1,6 @@
 /*
- *  PlayState.cpp
- *  Normal "play" state
- *
- *  Created by Marcelo Cohen on 08/13.
- *  Copyright 2013 PUCRS. All rights reserved.
+ *  PlayState_Solution.cpp
+ *  Bruno Brandelli, Renata Bueno, Yago Vieira
  *
  */
 
@@ -30,9 +27,10 @@ void PlayState::init()
     text.setFillColor(sf::Color::Yellow);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
+    //necessario colocar o arquivo map.tmx na pasta data/maps do cfg
     map = new tmx::MapLoader("data/maps");       // all maps/tiles will be read from data/maps
     // map->AddSearchPath("data/maps/tilesets"); // e.g.: adding more search paths for tilesets
-    map->Load("dungeon-tilesets2.tmx");
+    map->Load("map.tmx");
     starPosition[0] = 50;
     starPosition[1] = 190;
     starPosition[2] = 320;

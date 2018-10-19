@@ -1,7 +1,6 @@
 /*
- * Exemplo de uso do framework de jogo
+ * Bruno Brandelli, Renata Bueno, Yago Viera
  *
- * Cria um jogo com 3 estados: "menu", "play" e "pause"
  *
  */
 
