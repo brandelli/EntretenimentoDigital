@@ -41,19 +41,12 @@ void PlayState::init()
     walkStates[2] = "walk-up";
     walkStates[3] = "walk-down";
     currentDir = RIGHT;
-    player.load("data/img/warrior.png",64,64,0,0,0,0,13,21,273);
+    player.load("data/img/bruno.png");
     player.setPosition(40,470);
-    player.loadAnimation("data/img/warrioranim.xml");
-    player.setAnimation(walkStates[currentDir]);
-    player.setAnimRate(30);
-    //player.setScale(1,1);
+    player.setScale(0.7,0.7);
     player.play();
 
-    enemy.load("data/img/Char14.png");
-    enemy.setPosition(40,250);
-    enemy.setXspeed(level*enemySpeed);
-    enemy.setScale(2,2);
-
+    createEnemies();
     createObjectives();
 
 
@@ -80,11 +73,41 @@ void PlayState::init()
 void PlayState::createObjectives()
 {
     for(int i=0;i<5;i++){
-        star[i].load("data/img/Char22.png");
+        star[i].load("data/img/objetivo.png");
         star[i].setPosition(starPosition[i],50);
-        star[i].setScale(1,1);
+        star[i].setScale(0.5,0.5);
     }
 }
+
+void PlayState::createEnemies()
+{
+    enemy[0].load("data/img/cohen.png");
+    enemy[0].setPosition(40,250);
+    enemy[0].setXspeed(level*enemySpeed);
+    enemy[0].setScale(0.7,0.7);
+
+    enemy[1].load("data/img/moreno.png");
+    enemy[1].setPosition(200,250);
+    enemy[1].setXspeed(level*enemySpeed);
+    enemy[1].setScale(0.7,0.7);
+
+    enemy[2].load("data/img/g2.png");
+    enemy[2].setPosition(150,400);
+    enemy[2].setXspeed(level*enemySpeed);
+    enemy[2].setScale(0.7,0.7);
+
+    enemy[3].load("data/img/cohen.png");
+    enemy[3].setPosition(300,400);
+    enemy[3].setXspeed(level*enemySpeed);
+    enemy[3].setScale(0.7,0.7);
+
+    enemy[4].load("data/img/moreno.png");
+    enemy[4].setPosition(500,400);
+    enemy[4].setXspeed(level*enemySpeed);
+    enemy[4].setScale(0.7,0.7);
+
+}
+
 
 void PlayState::cleanup()
 {
@@ -171,16 +194,8 @@ void PlayState::update(cgf::Game* game)
 {
     screen = game->getScreen();
     checkCollision(2, game, &player);
-    if(checkCollision(2, game, &enemy))
-        enemy.setPosition(40,250);
-
-    if(player.bboxCollision(enemy)) {
-        enemy.setVisible(false);
-        text.setString(L"Perdeu");
-        text.setPosition(300,200);
-        text.setFillColor(sf::Color::Red);
-        text.setCharacterSize(64);
-    }
+    checkEnemyWallColision(game);
+    checkPlayerEnemyColision();
     reachedObjective();
     finishedLevel();
 
@@ -194,6 +209,32 @@ void PlayState::reachedObjective()
             bStar[i] = false;
             star[i].setVisible(false);
             player.setPosition(40,470);
+        }
+    }
+}
+
+void PlayState::checkEnemyWallColision(cgf::Game* game)
+{
+    for(int i=0;i<5;i++){
+        if(checkCollision(2, game, &enemy[i])){
+            if(i < 2)
+                enemy[i].setPosition(40,250);
+            else
+                enemy[i].setPosition(40,400);
+
+        }
+    }
+}
+
+void PlayState::checkPlayerEnemyColision()
+{
+    for(int i=0;i<5;i++){
+        if(player.bboxCollision(enemy[i])) {
+            enemy[i].setVisible(false);
+            text.setString(L"Perdeu");
+            text.setPosition(300,200);
+            text.setFillColor(sf::Color::Red);
+            text.setCharacterSize(64);
         }
     }
 }
@@ -212,8 +253,17 @@ bool PlayState::finishedLevel()
     }
     player.setPosition(40,470);
     level = level + 1;
-    enemy.setPosition(40,250);
-    enemy.setXspeed(level*enemySpeed);
+    enemy[0].setXspeed(level*enemySpeed);
+    enemy[1].setXspeed(level*enemySpeed);
+    enemy[2].setXspeed(level*enemySpeed);
+    enemy[3].setXspeed(level*enemySpeed);
+    enemy[4].setXspeed(level*enemySpeed);
+
+    enemy[0].setPosition(40,250);
+    enemy[1].setPosition(200,250);
+    enemy[2].setPosition(150,400);
+    enemy[3].setPosition(300,400);
+    enemy[4].setPosition(500,400);
 }
 
 void PlayState::draw(cgf::Game* game)
@@ -222,10 +272,14 @@ void PlayState::draw(cgf::Game* game)
     map->Draw(*screen);          // draw all layers
 //    map->Draw(*screen, 1);     // draw only the second layer
     screen->draw(player);
-    screen->draw(enemy);
+
     screen->draw(text);
     for(int i=0;i<5;i++){
         screen->draw(star[i]);
+    }
+
+    for(int i=0;i<5;i++){
+        screen->draw(enemy[i]);
     }
 }
 

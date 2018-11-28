@@ -28,6 +28,9 @@ class PlayState : public cgf::GameState
     void draw(cgf::Game* game);
     void createObjectives();
     void reachedObjective();
+    void createEnemies();
+    void checkEnemyWallColision(cgf::Game* game);
+    void checkPlayerEnemyColision();
     bool finishedLevel();
 
     // Implement Singleton Pattern
@@ -51,7 +54,7 @@ class PlayState : public cgf::GameState
     int dirx, diry;
 
     cgf::Sprite player;
-    cgf::Sprite enemy;
+    cgf::Sprite enemy[5];
     cgf::Sprite star[5];
     bool bStar[5];
     int starPosition[5];
