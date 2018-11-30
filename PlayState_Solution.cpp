@@ -230,7 +230,7 @@ void PlayState::checkPlayerEnemyColision()
 {
     for(int i=0;i<5;i++){
         if(player.bboxCollision(enemy[i])) {
-            enemy[i].setVisible(false);
+            player.setVisible(false);
             text.setString(L"Perdeu");
             text.setPosition(300,200);
             text.setFillColor(sf::Color::Red);
